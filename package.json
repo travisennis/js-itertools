@@ -1,0 +1,7 @@
+{
+    "name": "js-itertools",
+    "version": "0.1.0",
+    "description": "A library of functions for operating on iterators and generators",
+    "keywords": ["iterators", "generators"],
+    "author": "Travis Ennis (http://www.travisennis.com/) <travis@travisennis.com`>"
+}
