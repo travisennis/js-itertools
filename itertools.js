@@ -17,7 +17,6 @@ Number.prototype.__iterator__ = function() {
 
   var iter = Object.create(null);
 
-
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = iter;
@@ -46,9 +45,14 @@ Number.prototype.__iterator__ = function() {
   /**
    * Make an iterator that returns consecutive integers starting with start with optional step.
    */
-  iter.count = function(start) {
+  iter.count = function() {
+    var start = 0;
     var step = 1;
-    if(arguments.length == 2) {
+    if(arguments.length == 1) {
+      start = arguments[0];
+    }
+    else if(arguments.length == 2) {
+      start = arguments[0];
       step = arguments[1];
     }
     for(let i = start; true; i += step) {
@@ -294,7 +298,7 @@ Number.prototype.__iterator__ = function() {
   /**
    * Make an iterator tha returns selected elements from the iterable.
    */
-  var slice = function(iterable) {
+  iter.slice = function(iterable) {
     iterable = Iterator(iterable);
     var start = 0, stop = 0, step = 1;
     if (arguments.length == 2) {
@@ -335,7 +339,7 @@ Number.prototype.__iterator__ = function() {
    * Take first n elements from iterable.
    */
   iter.take = function(iterable, n) {
-    return iter.slice(iterable, n);
+    return iter.slice(iterable, n - 1);
   };
 
   /**
@@ -387,25 +391,10 @@ Number.prototype.__iterator__ = function() {
     var args = Array.prototype.slice.call(arguments);
     var iterables = iter.list(iter.map(Iterator, args));
     while (iterables) {
-      for (let [i, it] in iter.enumerate(iterables)) {
+      for (let [i, it] in iterables) {
         yield it.next();
       }
     }
-  };
-
-  /**
-   * Takes a list a removes all consecutive duplicates.
-   */
-  iter.compress = function(list) {
-    return [a[0] for (a in iter.zip(list, list.slice(1).append("undefined"))) if (a[0] != a[1])];
-  };
-
-  /**
-   * Takes a list and breaks consecutive runs of elements into sub-lists.
-   */
-  iter.pack = function(list) {
-    var it = Iterator(list.slice(1));
-    return [iter.list(iter.takewhile(function(y) { return y == x}, it)).append(x) for (x in iter.compress(list))];
   };
 
   /**
@@ -444,6 +433,20 @@ Number.prototype.__iterator__ = function() {
   };
 
   /**
+   * Takes a list a removes all consecutive duplicates.
+   */
+  iter.compress = function(list) {
+    return [a for ([a,b] in iter.groupBy(list))] ;
+  };
+
+  /**
+   * Takes a list and breaks consecutive runs of elements into sub-lists.
+   */
+  iter.pack = function(list) {
+    return [iter.list(b) for ([a,b] in iter.groupBy(list))];
+  };
+
+  /**
    *
    */
   iter.repeat = function(x) {
@@ -459,6 +462,47 @@ Number.prototype.__iterator__ = function() {
         break;
       }
     }
+  };
+
+  /**
+   *
+   */
+  iter.tee = function(iter) {
+    let it = Iterator(iter);
+    let n = 2;
+    if(arguments.length == 2) {
+      n = arguments[1];
+    }
+    let queues = [[] for (i in n)];
+    function gen(q) {
+      while(true) {
+        if(q.length == 0) {
+          let val = it.next();
+          for(let d in queues) {
+            d.push(val);
+          }
+        }
+        yield q.shift();
+      }
+    }
+    return [gen(d) for (d in queues)];
+  };
+
+  /**
+   *
+   */
+  iter.forEach = function (func, iter) {
+    iterable = Iterator(iterable);
+    for (let x in iterable) {
+      func(x);
+    }    
+  }
+
+  /**
+   *
+   */
+  iter.flatten = function(iterable) {
+    return iter.chain(iterable);
   }
 
   function reverse(list) {
