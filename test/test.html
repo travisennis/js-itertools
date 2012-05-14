@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>js-itertools - unit tests</title>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.2.0.css" type="text/css" media="screen" />
+        <script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.2.0.js"></script>
+        <script type="text/javascript" src="./../itertools.js"></script>
+        <script>
+            $(document).ready(function(){
+
+                module("iter.chain");
+
+                test("iter.chain test", function() {
+                    var a = iter.chain([1,2],[4,5]);
+                    equal(a.next(), 1, "The first value is 1");
+                });
+    
+                module("iter.count");
+
+                test("iter.count test", function() {
+                    var a = iter.count();
+                    equal(a.next(), 0, "The first value is 0" );
+                });
+
+                module("iter.tee");
+
+                test("iter.tee test", function() {
+                    var a = iter.tee(iter.range(5));
+                    ok(Array.isArray(a), "iter.tee returns an array");
+                    equal(a.length, 2, "The default number of iterators returned is 2.");
+                    equal(a[0].next(), 0, "First iterator should return 0.");
+                    equal(a[1].next(), 0, "Second iterator should return 0.");
+                    equal(a[0].next(), 1, "First iterator should return 1.");
+                    equal(a[1].next(), 1, "Second iterator should return 1.");
+                });
+
+                module("iter.forEach");
+
+                test("iter.forEach test", function() {
+                    var a = iter.forEach(alert, iter.range(5));
+                    a.next();
+                });
+            });
+        </script>
+  
+    </head>
+    <body>
+        <h1 id="qunit-header">js-itertools</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+        <div id="qunit-fixture">test markup, will be hidden</div>
+    </body>
+</html>
+
