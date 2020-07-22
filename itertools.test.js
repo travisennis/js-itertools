@@ -224,7 +224,5 @@ test('flatten succeeds', () => {
 test('permutations succeeds', () => {
   const testIter = iter.permutations(iter.range(1, 6), 2)
   const result = [...testIter]
-  console.log(result)
-  console.log(result.length)
-  expect(result).toHaveLength(20)
+  expect(result).toHaveLength(120)
 })
