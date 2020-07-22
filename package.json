@@ -2,6 +2,42 @@
     "name": "js-itertools",
     "version": "0.1.0",
     "description": "A library of functions for operating on iterators and generators",
-    "keywords": ["iterators", "generators"],
-    "author": "Travis Ennis (http://www.travisennis.com/) <travis@travisennis.com`>"
+    "main": "itertools.js",
+    "license": "MIT",
+    "keywords": [
+        "iterators",
+        "generators"
+    ],
+    "author": {
+        "name": "Travis Ennis",
+        "url": "https://travisennis.com/",
+        "email": "travis@travisennis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/travisennis/js-itertools.git"
+    },
+    "homepage": "https://github.com/travisennis/js-itertools",
+    "scripts": {
+        "test": "jest",
+        "lint": "eslint . --ext .js"
+    },
+    "devDependencies": {
+        "@babel/plugin-transform-modules-commonjs": "^7.10.4",
+        "eslint": "^7.4.0",
+        "eslint-config-standard": "^14.1.1",
+        "eslint-plugin-import": "^2.22.0",
+        "eslint-plugin-jest": "^23.18.0",
+        "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-promise": "^4.2.1",
+        "eslint-plugin-standard": "^4.0.1",
+        "jest": "^26.1.0"
+    },
+    "babel": {
+        "env": {
+            "test": {
+                "plugins": ["@babel/plugin-transform-modules-commonjs"]
+            }
+        }
+    }
 }
