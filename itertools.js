@@ -2,6 +2,10 @@ export const iter = function (iterable) {
   return iterable[Symbol.iterator]()
 }
 
+export const isIterable = function (obj = null) {
+  return (obj !== null && typeof obj[Symbol.iterator] === 'function')
+}
+
 /**
  * Make an iterator that returns elements from the first iterable until it is
  * exhausted, then proceeds to the next iterable, until all of the iterables
@@ -252,9 +256,18 @@ export const takewhile = function * (iterable, func) {
  * Make an iterator of arithmetic progressions.
  */
 export const range = function * (start, end, step = 1) {
-  if (start === end) {
+  if (typeof end === 'undefined') {
+    end = start
+    start = 0
+  }
+  if (step > 0 && start >= end) {
     return
   }
+
+  if (step < 0 && start <= end) {
+    return
+  }
+
   yield start
   yield * range(start + step, end, step)
 }
@@ -446,7 +459,11 @@ export const tee = function (iterable, n = 2) {
   function * gen (q) {
     while (true) {
       if (q.length === 0) {
-        const val = iterable.next().value
+        const next = iterable.next()
+        if (next.done) {
+          return
+        }
+        const val = next.value
         for (const d of queues) {
           d.push(val)
         }
@@ -479,28 +496,109 @@ export const flatten = function * (iterables) {
  *
  * @param {*} iterable
  */
-export const permutations = function * (iterable, n = null) {
-  const permutation = Array.from(iterable)
-  const length = permutation.length
-  const r = n || length
-  const c = Array(length).fill(0)
-  let i = 1
-  let k
-  let p
+export const permutations = function * (iterable, r = null) {
+  const pool = Array.from(iterable)
+  const n = pool.length
+  const x = r === undefined ? n : r
 
-  yield permutation.slice(0, r)
-  while (i < length) {
-    if (c[i] < i) {
-      k = i % 2 && c[i]
-      p = permutation[i]
-      permutation[i] = permutation[k]
-      permutation[k] = p
-      ++c[i]
-      i = 1
-      yield permutation.slice(0, r)
-    } else {
-      c[i] = 0
-      ++i
+  if (x > n) {
+    return
+  }
+
+  let indices = Array.from(range(0, n))
+  const cycles = Array.from(range(n, n - x, -1))
+  const poolgetter = (i) => pool[i]
+
+  yield indices.slice(0, x).map(poolgetter)
+
+  while (true) {
+    let cleanExit = true
+    for (const i of range(x - 1, -1, -1)) {
+      cycles[i] -= 1
+      if (cycles[i] === 0) {
+        indices = indices
+          .slice(0, i)
+          .concat(indices.slice(i + 1))
+          .concat(indices.slice(i, i + 1))
+        cycles[i] = n - i
+      } else {
+        const j = cycles[i]
+
+        const [p, q] = [indices[indices.length - j], indices[i]]
+        indices[i] = p
+        indices[indices.length - j] = q
+        yield indices.slice(0, x).map(poolgetter)
+        cleanExit = false
+        break
+      }
+    }
+
+    if (cleanExit) {
+      return
     }
   }
+}
+
+export const combinations = function (iterable, r = null) {
+  const pool = Array.from(iterable)
+  const poolLength = pool.length
+  const n = r === undefined ? poolLength : r
+
+  if (r > poolLength) {
+    return
+  }
+
+  const result = []
+
+  function * gen (idx = 0, start = 0) {
+    if (idx >= n) {
+      yield result.slice()
+      return
+    }
+    for (let i = start; i < poolLength; i++) {
+      result[idx] = pool[i]
+      yield * gen(idx + 1, i + 1)
+    }
+  }
+
+  return gen()
+}
+
+export const combinationsWithReplacement = function (iterable, r) {
+  const pool = Array.from(iterable)
+  const n = pool.length
+  const result = []
+
+  function * gen (pos = 0) {
+    if (result.length === r) {
+      yield result.slice()
+      return
+    }
+    for (let i = pos; i < n; i++) {
+      result.push(pool[i])
+      yield * gen(i)
+      result.pop()
+    }
+  }
+
+  return gen()
+}
+
+export const product = function (...iterables) {
+  const arr = [...iterables].map(it => isIterable(it) ? [...it] : it)
+  const len = arr.length
+  const res = []
+
+  function * gen (idx = 0) {
+    if (idx >= len) {
+      yield res.slice()
+      return
+    }
+    for (const v of arr[idx]) {
+      res[idx] = v
+      yield * gen(idx + 1)
+    }
+  }
+
+  return gen()
 }

@@ -108,6 +108,25 @@ test('range succeeds in reverse', () => {
   expect(testIter.next().value).toBe(1)
   expect(testIter.next().value).toBeUndefined()
   expect(testIter.next().done).toBe(true)
+
+  const testIter2 = iter.range(5, -1, -1)
+  expect(testIter2.next().value).toBe(5)
+  expect(testIter2.next().value).toBe(4)
+  expect(testIter2.next().value).toBe(3)
+  expect(testIter2.next().value).toBe(2)
+  expect(testIter2.next().value).toBe(1)
+  expect(testIter2.next().value).toBe(0)
+  expect(testIter2.next().value).toBeUndefined()
+  expect(testIter2.next().done).toBe(true)
+})
+
+test('range succeeds with one argument', () => {
+  const testIter = iter.range(3)
+  expect(testIter.next().value).toBe(0)
+  expect(testIter.next().value).toBe(1)
+  expect(testIter.next().value).toBe(2)
+  expect(testIter.next().value).toBeUndefined()
+  expect(testIter.next().done).toBe(true)
 })
 
 test('takewhile succeeds', () => {
@@ -224,5 +243,35 @@ test('flatten succeeds', () => {
 test('permutations succeeds', () => {
   const testIter = iter.permutations(iter.range(1, 6), 2)
   const result = [...testIter]
-  expect(result).toHaveLength(120)
+  expect(result).toHaveLength(20)
+})
+
+test('combinations succeeds', () => {
+  const testIter = iter.combinations(iter.range(1, 6), 2)
+  const result = [...testIter]
+  expect(result).toHaveLength(10)
+})
+
+test('combinations with replacement succeeds', () => {
+  const testIter = iter.combinationsWithReplacement(iter.range(1, 6), 2)
+  const result = [...testIter]
+  expect(result).toHaveLength(15)
+
+  const testIter2 = iter.combinationsWithReplacement(iter.range(3), 3)
+  const result2 = [...testIter2]
+  expect(result2).toHaveLength(10)
+})
+
+test('product succeeds', () => {
+  const testIter = iter.product([1, 2], [10, 20], [100, 200, 300])
+  const result = [...testIter]
+  expect(result).toHaveLength(12)
+
+  const testIter2 = iter.product(iter.range(2), iter.range(2), iter.range(2))
+  const result2 = [...testIter2]
+  expect(result2).toHaveLength(8)
+
+  const testIter3 = iter.product('ABCD', 'xy')
+  const result3 = [...testIter3]
+  expect(result3).toHaveLength(8)
 })
