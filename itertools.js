@@ -1,3 +1,5 @@
+'use strict'
+
 export const iter = function (iterable) {
   return iterable[Symbol.iterator]()
 }
@@ -253,7 +255,11 @@ export const takewhile = function * (iterable, func) {
 }
 
 /**
- * Make an iterator of arithmetic progressions.
+ * Returns a range iterator
+ *
+ * @param {number} start the number to start the range
+ * @param {number} end the number to end the range
+ * @param {number} [step] optional step. will default to 1
  */
 export const range = function * (start, end, step = 1) {
   if (typeof end === 'undefined') {
